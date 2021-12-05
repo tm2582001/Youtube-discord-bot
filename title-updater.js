@@ -11,7 +11,7 @@ function authorize(memberCount,luckyMember) {
     updateVideo(oauth2Client,memberCount,luckyMember);
 }
 
-function updateVideo(auth,memberCount,luckyMember) {
+function updateVideo(auth,memberCount,luckyMember = " ") {
     var service = google.youtube('v3');
     service.videos.update({
         auth: auth,
