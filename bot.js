@@ -16,17 +16,17 @@ const client = new Client({ intents: intents, ws: { intents: intents } });
 // some global variable
 let memberJoined = [];
 let luckyMember = " ";
-let timeOut = false;
+let membersCount;
 
 // function for selecting random new member
-function getLuckyMember(){
-    let luckyNumber = Math.floor(Math.random()*memberJoined.length);
+function getLuckyMember() {
+    let luckyNumber = Math.floor(Math.random() * memberJoined.length);
     console.log(luckyNumber);
     return memberJoined[luckyNumber];
 }
 
 // saving new members data
-function addMemberJoined(Username,Id){
+function addMemberJoined(Username, Id) {
     let newMember = {
         Username: Username,
         Id: Id
@@ -37,25 +37,44 @@ function addMemberJoined(Username,Id){
 }
 
 // removing member who leaves the server
-function removeMemberJoined(id){
+function removeMemberJoined(id) {
     memberJoined = memberJoined.filter(member => member.Id !== id);
 }
 
-// an interval for allowing permission to send request
+// an interval for updating youtube title
 setInterval(() => {
-    console.log("timeout");
-    timeOut = false;
-}, 50000)
+    console.log("updated");
+
+    luckyMember = getLuckyMember();
+    memberJoined = [];  // removing previous time frame data
+
+    if (luckyMember) {
+        // pinging special member
+        client.channels.cache.get(channelId).send("Congratulation <@" + luckyMember.Id + "> you will see your name at my youtube title");
+
+        // calling youtube authentication
+        authorize(membersCount, luckyMember.Username);
+        console.log(membersCount + " new member");
+    } else {
+
+        // caling youtube authentication
+        authorize(membersCount);
+        console.log(membersCount + " no new member");
+    }
+
+}, 600000);
 
 // sending request to discord after starting bot
 client.once('ready', () => {
-    if (!timeOut) {
-        let myGuild = client.guilds.cache.get(guildId);
-        let membersCount = myGuild.memberCount;
-        authorize(membersCount, luckyMember);
-        console.log(membersCount);
-        timeOut = true;
-    }
+
+    let myGuild = client.guilds.cache.get(guildId);
+    membersCount = myGuild.memberCount;
+
+    console.log(membersCount);
+    authorize(membersCount, luckyMember);
+
+    timeOut = true;
+
 
 });
 
@@ -65,67 +84,34 @@ client.on('guildMemberAdd', (member) => {
     // extracting new member data
     let newMemberUsername = member.user.username;
     let newMemberId = member.user.id;
-    addMemberJoined(newMemberUsername,newMemberId);
-    
 
-    if (!timeOut) {
-        
-        luckyMember = getLuckyMember();
-        memberJoined = [];  // removing previous time frame data
-        
-        if(luckyMember){
-            // pinging specail member
-            member.guild.channels.cache.get(channelId).send("Congratulation <@" + luckyMember.Id + "> you will see your name at my youtube title");
-            
-            // for member count
-            let myGuild = client.guilds.cache.get(guildId);
-            let membersCount = myGuild.memberCount;
-            // calling youtube authentication
-            authorize(membersCount, luckyMember.Username);
-            console.log(membersCount);
-        }else{
-            // this is practical imposible but it is here for specail case 
-            let myGuild = client.guilds.cache.get(guildId);
-            let membersCount = myGuild.memberCount;
-            authorize(membersCount);
-            console.log(membersCount);
-        }
-        
-        timeOut = true;
-    }
+    addMemberJoined(newMemberUsername, newMemberId);
+
+    // updating member count
+    let myGuild = client.guilds.cache.get(guildId);
+    membersCount = myGuild.memberCount;
+    console.log(membersCount);
+
+    // sending message to see it is working
+    member.guild.channels.cache.get(channelId).send("Welcome");
+
 });
 
+// this event will trigger when member is removed
 client.on("guildMemberRemove", (member) => {
 
     // saving data of member who left this server
     let leftMemberId = member.user.id;
-    
+
     removeMemberJoined(leftMemberId);
 
-    if (!timeOut) {
-        luckyMember = getLuckyMember();
-        memberJoined = [];
+    //updating member count 
+    let myGuild = client.guilds.cache.get(guildId);
+    membersCount = myGuild.memberCount;
+    console.log(membersCount);
 
-        if(luckyMember){
-            member.guild.channels.cache.get(channelId).send("Congratulation <@" + luckyMember.Id + "> you will see your name at my youtube title");
-            
-            // for member count
-            let myGuild = client.guilds.cache.get(guildId);
-            let membersCount = myGuild.memberCount;
-
-            // calling youtube authentication
-            authorize(membersCount, luckyMember.Username);
-            console.log(membersCount);
-        }else{
-            let myGuild = client.guilds.cache.get(guildId);
-            let membersCount = myGuild.memberCount;
-            authorize(membersCount);
-            console.log(membersCount);
-        }
-        
-        timeOut = true;
-    }
-
+    // sending message to see bot is running or not
+    member.guild.channels.cache.get(channelId).send("bye");
 });
 
 

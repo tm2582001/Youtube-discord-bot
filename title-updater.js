@@ -2,6 +2,7 @@ let { google } = require('googleapis');
 let OAuth2 = google.auth.OAuth2;
 
 function authorize(memberCount,luckyMember) {
+    console.log("I was called");
     var clientSecret = process.env.CLIENT_SECRET;
     var clientId = process.env.CLIENT_ID;
     var redirectUrl = process.env.REDIRECT_URI;
