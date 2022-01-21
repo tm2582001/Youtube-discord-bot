@@ -18,7 +18,12 @@ function authorize(memberCount,luckyMember) {
 
 function updateVideo(auth,memberCount,luckyMember = " ") {
     if(luckyMember !== " "){
-        winner = profanity.maskBadWords(filter.clean(luckyMember));
+        try{
+            winner = profanity.maskBadWords(filter.clean(luckyMember));
+
+        }catch(err){
+            winner = luckyMember;
+        }
     }
     var service = google.youtube('v3');
     service.videos.update({
