@@ -20,6 +20,8 @@ let membersCount;
 
 // function for selecting random new member
 function getLuckyMember() {
+    console.log(memberJoined.length + ' Length of memberJoined');
+    console.log(memberJoined);
     let luckyNumber = Math.floor(Math.random() * memberJoined.length);
     console.log(luckyNumber);
     return memberJoined[luckyNumber];
@@ -38,7 +40,7 @@ function addMemberJoined(Username, Id) {
 
 // removing member who leaves the server
 function removeMemberJoined(id) {
-    memberJoined = memberJoined.filter(member => member.Id !== id);
+    memberJoined = memberJoined.filter(member =>  (member.Id !==id));
 }
 
 // an interval for updating youtube title
@@ -71,9 +73,7 @@ client.once('ready', () => {
     membersCount = myGuild.memberCount;
 
     console.log(membersCount);
-    authorize(membersCount, luckyMember);
-
-    timeOut = true;
+    authorize(membersCount);
 
 
 });
